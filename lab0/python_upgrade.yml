@@ -1,0 +1,31 @@
+- name: Install Python 3.9 from source on managed nodes using raw
+  hosts: multi
+  become: yes
+  tasks:
+
+    - name: Install required build tools
+      raw: sudo dnf install -y gcc openssl-devel bzip2-devel libffi-devel zlib-devel
+
+    - name: Download Python 3.9.21 source
+      raw: wget https://www.python.org/ftp/python/3.9.21/Python-3.9.21.tgz -P /tmp
+
+    - name: Extract Python source
+      raw: tar -xvf /tmp/Python-3.9.21.tgz -C /tmp
+
+    - name: Compile and install Python 3.9
+      raw: |
+        cd /tmp/Python-3.9.21
+        sudo ./configure --enable-optimizations
+        sudo make altinstall
+
+    - name: Create symlink for python3 to python3.9
+      raw: sudo ln -sf /usr/local/bin/python3.9 /usr/bin/python3
+
+    - name: Verify Python 3.9 installation
+      raw: python3 --version
+      register: python_version
+      changed_when: false
+
+    - name: Display Python version
+      debug:
+        msg: "Installed Python version: {{ python_version.stdout }}"

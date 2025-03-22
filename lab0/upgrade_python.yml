@@ -1,0 +1,20 @@
+- name: Upgrade Python on Vagrant Nodes
+  hosts: multi
+  become: yes  # Run as sudo
+  tasks:
+    - name: Install Python 3.11
+      dnf:
+        name: python3.11
+        state: present
+
+    - name: Set Python 3.11 as default alternative
+      command: sudo alternatives --set python3 /usr/bin/python3.11
+      changed_when: false  # Avoid unnecessary task changes
+
+    - name: Verify Python Version
+      command: python3 --version
+      register: python_version
+
+    - name: Show Python Version
+      debug:
+        msg: "Python version installed: {{ python_version.stdout }}"

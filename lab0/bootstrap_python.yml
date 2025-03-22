@@ -1,0 +1,12 @@
+- name: Bootstrap Python on Vagrant Nodes
+  hosts: multi
+  gather_facts: no  # Avoid using Python before it's installed
+  become: yes  # Run as sudo
+  tasks:
+    - name: Install Python 3.11 using Raw Module (Bypass Python Dependency)
+      raw: sudo dnf install -y python3.11
+      changed_when: false
+
+    - name: Ensure Python 3.11 is Set as Default
+      raw: sudo alternatives --set python3 /usr/bin/python3.11
+      changed_when: false
