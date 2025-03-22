@@ -1,6 +1,6 @@
 # NGINX Load Balancer with Apache Web Servers (Ansible + Vagrant)
 
-This project sets up a simple load-balanced environment using **NGINX** to distribute HTTP requests between two Apache web servers (`web01` and `web02`). Provisioning is done using **Vagrant**, and configuration is automated with **Ansible**.
+This project sets up a simple load-balanced environment using **NGINX** to distribute HTTP requests between two Apache web servers (`web01` and `web02` that are provisioned in ansible_lab1). Provisioning is done using **Vagrant**, and configuration is automated with **Ansible**.
 
 ---
 
