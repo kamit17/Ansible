@@ -1,0 +1,38 @@
+---
+- name: Setup Nginx LB
+  hosts: "{{ hostname }}"
+  become: yes
+
+  tasks:
+    - name: Install nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Configure nginx as a load balancer
+      ansible.builtin.copy:
+        dest: /etc/nginx/sites-available/default
+        content: |
+          upstream backend {
+              server <web01ip>:8080;
+              server <web02ip>:8081;
+          }
+
+          server {
+              listen 80;
+
+              location / {
+                  proxy_pass http://backend;
+              }
+          }
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart Nginx
+
+  handlers:
+    - name: Restart Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
