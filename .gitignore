@@ -20,3 +20,10 @@
 # Go workspace file
 go.work
 hosts
+
+# Ignore certs and keys
+*.crt
+*.key
+files/nginx.crt
+files/nginx.key
+
