@@ -1,0 +1,96 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Configure NGINX Load Balancer (Optional TLS)
+  hosts: "{{ hostname }}"
+  become: true
+  gather_facts: false
+
+  vars_files:
+    - vars/backend_servers.yml
+
+  vars:
+    tls_enabled: false
+    tls_dir: /etc/nginx/ssl
+    key_file: nginx.key
+    cert_file: nginx.crt
+    conf_file: /etc/nginx/sites-available/default
+
+  handlers:
+    - name: Restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
+
+  tasks:
+    - name: Debug - show tls_enabled value
+      ansible.builtin.debug:
+        msg: "TLS Enabled {{ tls_enabled }}"
+        
+
+    - name: Ensure nginx is installed
+      ansible.builtin.apt:
+        name: nginx
+        update_cache: true
+        state: present
+      notify: Restart nginx
+
+    - name: Create TLS directory (if enabled)
+      ansible.builtin.file:
+        path: "{{ tls_dir }}"
+        state: directory
+        mode: '0750'
+      when: tls_enabled
+
+    - name: Copy TLS cert/key (if enabled)
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "{{ tls_dir }}/{{ item }}"
+        mode: '0600'
+      loop:
+        - "{{ key_file }}"
+        - "{{ cert_file }}"
+      when: tls_enabled
+      notify: Restart nginx
+
+    - name: Configure NGINX with load balancing
+      ansible.builtin.template:
+        src: nginx.conf.j2
+        dest: "{{ conf_file }}"
+        mode: '0644'
+      notify: Restart nginx
+
+    - name: Apply configuration
+      ansible.builtin.meta: flush_handlers
+
+    - name: Wait for NGINX to fully start
+      pause:
+        seconds: 5
+      when: not tls_enabled
+
+    - name: Test HTTP endpoint
+      delegate_to: localhost
+      become: false
+      uri:
+        url: "http://{{ hostvars[hostname]['ansible_host'] }}/index.html"
+        return_content: true
+      register: http_result
+      failed_when: https_result.status !=200
+      when: not tls_enabled
+      tags: [test]
+
+    - name: Test HTTPS endpoint
+      delegate_to: localhost
+      become: false
+      uri:
+        url: "https://{{ hostvars[hostname]['ansible_host'] }}/index.html"
+        validate_certs: false
+        return_content: true
+      register: https_result
+      failed_when: https_result.status !=200
+      when: tls_enabled
+      tags: [test]
+
+    - name: Debug response content (for inspection)
+      debug:
+        var: https_result.content
+      when: tls_enabled      
