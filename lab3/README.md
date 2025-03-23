@@ -13,6 +13,9 @@ This project further extends lab02 by implementing TLS  and  sets up a simple lo
 - Each VM uses port forwarding to expose services to the host machine.
 
 ---
+## 🔧 Generate local cert on ansible controller under lab3/files directory by running this command
+openssl req -x509 -nodes -days 365 -newkey rsa:2048   -keyout nginx.key   -out nginx.crt   -subj "/CN=localhost"
+
 
 ## 🚀 Apache Configuration Notes
 
