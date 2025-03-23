@@ -22,8 +22,8 @@ go.work
 hosts
 
 # Ignore certs and keys
-*.crt
-*.key
+*.crt.local
+*.key.local
 files/nginx.crt
 files/nginx.key
 
