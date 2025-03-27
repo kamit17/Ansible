@@ -27,3 +27,11 @@ hosts
 files/nginx.crt
 files/nginx.key
 
+.DS_Store
+.vagrant/
+vagrant_ansible_inventory_default
+*.cache
+*.retry
+test.sh
+
+*/provisioning/roles/geerlingguy.*
