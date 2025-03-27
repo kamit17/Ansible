@@ -1,0 +1,46 @@
+---
+- name: Debug - show tls_enabled value
+  ansible.builtin.debug:
+    msg: "TLS Enabled: {{ tls_enabled }}"
+
+#- name: Load backend servers variables
+#  ansible.builtin.include_vars: backend_servers.yml
+
+- name: Debug - show backend servers
+  ansible.builtin.debug:
+    msg: "Backend servers: {{ backend_servers }}"
+
+- name: Ensure nginx is installed
+  ansible.builtin.apt:
+    name: nginx
+    update_cache: true
+    state: present
+  notify: Restart nginx
+
+- name: Create TLS directory (if enabled)
+  ansible.builtin.file:
+    path: "{{ tls_dir }}"
+    state: directory
+    mode: '0750'
+  when: tls_enabled
+
+- name: Copy TLS cert/key (if enabled)
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ tls_dir }}/{{ item }}"
+    mode: '0600'
+  loop:
+    - "{{ key_file }}"
+    - "{{ cert_file }}"
+  when: tls_enabled
+  notify: Restart nginx
+
+- name: Configure NGINX with load balancing
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: "{{ conf_file }}"
+    mode: '0644'
+  notify: Restart nginx
+
+- name: Apply configuration
+  ansible.builtin.meta: flush_handlers

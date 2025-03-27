@@ -1,0 +1,31 @@
+# nginx.conf.j2
+#Updating the config
+upstream backend {
+  {% for server in backend_servers %}
+  server {{ server.address }}:{{ server.port }};
+  {% endfor %}
+}
+
+{% if tls_enabled %}
+server {
+    listen 80;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    ssl_certificate {{ tls_dir }}/{{ cert_file }};
+    ssl_certificate_key {{ tls_dir }}/{{ key_file }};
+
+    location / {
+        proxy_pass http://backend;
+    }
+}
+{% else %}
+server {
+    listen 80;
+    location / {
+        proxy_pass http://backend;
+    }
+}
+{% endif %}
