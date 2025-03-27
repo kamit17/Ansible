@@ -1,0 +1,228 @@
+---
+- hosts: all
+  become: yes
+
+  vars_files:
+    - vars.yml
+
+  pre_tasks:
+    - name: Update apt cache if needed.
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+  handlers:
+    - name: restart apache
+      ansible.builtin.service:
+        name: apache2
+        state: restarted
+
+  tasks:
+    - name: Get software for apt repository management.
+      ansible.builtin.apt:
+        state: present
+        name:
+          - python3-apt
+          - python3-pycurl
+
+    - name: Add ondrej repository for later version of PHP.
+      ansible.builtin.apt_repository:
+        repo: 'ppa:ondrej/php'
+        update_cache: yes
+
+    - name: Install Apache, MySQL, PHP and other dependencies.
+      ansible.builtin.apt:
+        state: present
+        name:
+          - acl
+          - git
+          - curl
+          - unzip
+          - sendmail
+          - apache2
+          - php8.0-common
+          - php8.0-cli
+          - php8.0-dev
+          - php8.0-gd
+          - php8.0-curl
+          - php8.0-opcache
+          - php8.0-xml
+          - php8.0-mbstring
+          - php8.0-pdo
+          - php8.0-mysql
+          - php8.0-apcu
+          - libpcre3-dev
+          - libapache2-mod-php8.0
+          - python3-mysqldb
+          - mysql-server
+
+    - name: Disable the firewall.
+      ansible.builtin.service:
+        name: ufw
+        state: stopped
+
+    - name: Start Apache and MySQL.
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop:
+        - apache2
+        - mysql
+
+    - name: Enable Apache rewrite module.
+      community.general.apache2_module:
+        state: present
+        name: rewrite
+      notify: restart apache
+
+    - name: Add Apache virtual host for Drupal.
+      ansible.builtin.template:
+        src: "templates/drupal.test.conf.j2"
+        dest: "/etc/apache2/sites-available/{{ domain }}.test.conf"
+        owner: root
+        group: root
+        mode: "0644"
+      notify: restart apache
+
+    - name: Enable the Drupal site.
+      ansible.builtin.command: a2ensite {{ domain }}.test
+      args:
+        creates: "/etc/apache2/sites-enabled/{{ domain }}.test.conf"
+      notify: restart apache
+
+    - name: Disable the default site.
+      ansible.builtin.command: a2dissite 000-default
+      args:
+        removes: "/etc/apache2/sites-enabled/000-default.conf"
+      notify: restart apache
+
+    - name: Adjust OpCache memory setting.
+      ansible.builtin.lineinfile:
+        dest: "/etc/php/8.0/apache2/conf.d/10-opcache.ini"
+        regexp: "^opcache.memory_consumption"
+        line: "opcache.memory_consumption = 96"
+        state: present
+      notify: restart apache
+
+    - name: Create a MySQL database for Drupal.
+      community.mysql.mysql_db:
+        name: "{{ domain }}"
+        state: present
+
+    - name: Create a MySQL user for Drupal.
+      community.mysql.mysql_user:
+        name: "{{ domain }}"
+        password: "1234"
+        priv: "{{ domain }}.*:ALL"
+        host: localhost
+        state: present
+
+    - name: Download Composer installer.
+      ansible.builtin.get_url:
+        url: https://getcomposer.org/installer
+        dest: /tmp/composer-installer.php
+        mode: "0755"
+
+    - name: Run Composer installer.
+      ansible.builtin.command: php composer-installer.php
+      args:
+        chdir: /tmp
+        creates: /usr/local/bin/composer
+
+    - name: Move composer into globally-accessible location.
+      ansible.builtin.command: mv /tmp/composer.phar /usr/local/bin/composer
+      args:
+        creates: /usr/local/bin/composer
+
+    - name: Ensure Drupal directory exists.
+      ansible.builtin.file:
+        path: "{{ drupal_core_path }}"
+        state: directory
+        owner: www-data
+        group: www-data
+
+    - name: Ensure Drupal directory ownership is set to www-data recursively.
+      ansible.builtin.file:
+        path: "{{ drupal_core_path }}"
+        owner: www-data
+        group: www-data
+        recurse: yes
+
+    - name: Check if composer.lock exists.
+      ansible.builtin.stat:
+        path: "{{ drupal_core_path }}/composer.lock"
+      register: composer_lock_stat
+
+    - name: Ensure composer.lock is writable by www-data if it exists.
+      ansible.builtin.file:
+        path: "{{ drupal_core_path }}/composer.lock"
+        owner: www-data
+        group: www-data
+        mode: "0664"
+      when: composer_lock_stat.stat.exists
+
+    - name: Remove invalid composer.lock file if present.
+      ansible.builtin.shell: |
+        php -r "json_decode(file_get_contents('{{ drupal_core_path }}/composer.lock')) or unlink('{{ drupal_core_path }}/composer.lock');"
+      args:
+        executable: /bin/bash
+      become_user: www-data
+      when: composer_lock_stat.stat.exists
+      ignore_errors: yes
+
+    - name: Check if Drupal project already exists.
+      ansible.builtin.stat:
+        path: "{{ drupal_core_path }}/composer.json"
+      register: drupal_composer_json
+
+    - name: Create Drupal.
+      community.general.composer:
+        command: create-project
+        arguments: "drupal/recommended-project:^9.5 {{ drupal_core_path }}"
+        working_dir: "{{ drupal_core_path }}"
+        no_dev: true
+      become_user: www-data
+      when: not drupal_composer_json.stat.exists
+
+    - name: Check if drush is installed.
+      ansible.builtin.stat:
+        path: "{{ drupal_core_path }}/vendor/bin/drush"
+      register: drush_bin
+
+    - name: Add drush to the Drupal site with Composer.
+      community.general.composer:
+        command: require
+        arguments: "drush/drush:10.* -W"
+        working_dir: "{{ drupal_core_path }}"
+      become_user: www-data
+      when: not drush_bin.stat.exists
+
+    - name: Debug Drupal core path.
+      ansible.builtin.debug:
+        var: drupal_core_path
+
+    - name: Check if the Drupal project directory exists.
+      ansible.builtin.stat:
+        path: "{{ drupal_core_path }}"
+      register: drupal_dir_stat
+
+    - name: Display Drupal project directory status.
+      ansible.builtin.debug:
+        var: drupal_dir_stat
+
+    - name: Install Drupal.
+      ansible.builtin.command:
+        argv:
+          - "vendor/bin/drush"
+          - si
+          - -y
+          - "--site-name={{ drupal_site_name }}"
+          - "--account-name=admin"
+          - "--account-pass=admin"
+          - "--db-url=mysql://{{ domain }}:1234@localhost/{{ domain }}"
+          - "--root={{ drupal_core_path }}/web"
+        chdir: "{{ drupal_core_path }}"
+        creates: "{{ drupal_core_path }}/web/sites/default/settings.php"
+      notify: restart apache
+      become_user: www-data
