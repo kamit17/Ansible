@@ -1,0 +1,9 @@
+---
+- name: Configure NGINX Load Balancer (Optional TLS)
+  hosts: loadbalancer
+  become: true
+  gather_facts: false
+  roles:
+    - nginx
+  tags:
+     - nginx
