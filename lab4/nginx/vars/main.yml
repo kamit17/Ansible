@@ -6,3 +6,5 @@ backend_servers:
   - name: web02
     address: "{{ hostvars['web02'].ansible_host }}"
     port: 8081
+conf_file: /etc/nginx/sites-available/default
+
