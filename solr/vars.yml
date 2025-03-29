@@ -1,5 +1,12 @@
----
-download_dir: /tmp
-solr_dir: /opt/solr
-solr_version: 8.6.0
-solr_checksum: sha512:6b0d618069e37215f305d9a61a3e65be2b9cfc32a3689ea6a25be2f220b1ecc96a644ecc31c81e335a2dfa0bc8b7d0f2881ca192c36fd435cdd832fd309a9ddb
+solr_version: "8.11.4"
+download_dir: "/tmp"
+solr_checksum: sha512:828a7c3c06f3ccca852f2c3f91d72bf032cf102646283f4e603bbc3c3f3753978ce8b5c014c4263fb66c251b6726105956ad726baee63af6568637eba0416612
+solr_dir: "/opt/solr"
+
+# Installer options
+solr_installer_options:
+  install_dir: "/opt"
+  solr_data_dir: "/var/solr"
+  solr_user: "solr"
+  solr_service: "solr"
+  solr_port: "8983"
