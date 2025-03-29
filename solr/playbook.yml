@@ -1,6 +1,7 @@
 ---
 - hosts: all
   become: true
+  gather_facts: false
 
   vars_files:
     - vars.yml
@@ -35,11 +36,16 @@
         argv:
           - "{{ download_dir }}/solr-{{ solr_version }}/bin/install_solr_service.sh"
           - "{{ download_dir }}/solr-{{ solr_version }}.tgz"
-          - "-i/opt"
-          - "-d /var/solr"
-          - "-u solr"
-          - "-s solr"
-          - "-p 8983"
+          - "-i" 
+          - "/opt"
+          - "-d"
+          - "/var/solr"
+          - "-u"
+          - "solr"
+          - "-s"
+          - "solr"
+          - "-p"
+          - "8983"
       args: 
         creates: "{{ solr_dir }}/bin/solr"
 
