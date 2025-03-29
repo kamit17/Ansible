@@ -34,4 +34,5 @@ vagrant_ansible_inventory_default
 *.retry
 test.sh
 
-*/provisioning/roles/geerlingguy.*
+lab3/files/nginx.crt.local
+lab3/files/nginx.key.local
