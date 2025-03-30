@@ -1,0 +1,66 @@
+---
+
+- name: Debug - show tls_enabled value
+  ansible.builtin.debug:
+    msg: "TLS Enabled: {{ tls_enabled }}"
+
+#- name: Load backend servers variables
+#  ansible.builtin.include_vars: backend_servers.yml
+
+
+- name: Debug vault path
+  debug:
+    msg: "Trying to load vault from {{ playbook_dir }}/nginx/vars/vault.yml"
+  delegate_to: localhost
+  run_once: true
+
+
+- name: Load TLS secrets from vault
+  ansible.builtin.include_vars: "{{ playbook_dir }}/nginx/vars/vault.yml"
+  delegate_to: localhost
+  run_once: true
+
+- name: Debug - show backend servers
+  ansible.builtin.debug:
+    msg: "Backend servers: {{ backend_servers }}"
+
+- name: Ensure nginx is installed
+  ansible.builtin.apt:
+    name: nginx
+    update_cache: true
+    state: present
+  notify: Restart nginx
+
+- name: Create TLS directory (if enabled)
+  ansible.builtin.file:
+    path: "{{ tls_dir }}"
+    state: directory
+    mode: '0750'
+  when: tls_enabled
+
+- name: Write TLS cert (if enabled)
+  ansible.builtin.copy:
+    content: "{{ tls_cert }}"
+    dest: "{{ tls_dir }}/{{ cert_file }}"
+    mode: '0600'
+  when: tls_enabled
+  notify: Restart nginx
+
+- name: Write TLS key (if enabled)
+  ansible.builtin.copy:
+    content: "{{ tls_key }}"
+    dest: "{{ tls_dir }}/{{ key_file }}"
+    mode: '0600'
+  when: tls_enabled
+  notify: Restart nginx
+
+
+- name: Configure NGINX with load balancing
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: "{{ conf_file }}"
+    mode: '0644'
+  notify: Restart nginx
+
+- name: Apply configuration
+  ansible.builtin.meta: flush_handlers

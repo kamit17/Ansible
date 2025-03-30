@@ -1,0 +1,8 @@
+---
+backend_servers:
+  - name: web01
+    address: "{{ hostvars['web01'].ansible_host }}"
+    port: 8080
+  - name: web02
+    address: "{{ hostvars['web02'].ansible_host }}"
+    port: 8081

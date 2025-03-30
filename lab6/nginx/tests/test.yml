@@ -1,0 +1,33 @@
+---
+- name: Wait for NGINX to fully start (HTTP scenario)
+  ansible.builtin.pause:
+    seconds: 5
+  when: not tls_enabled
+
+- name: Test HTTP endpoint
+  delegate_to: localhost
+  become: false
+  ansible.builtin.uri:
+    url: "http://{{ hostvars[hostname]['ansible_host'] }}/index.html"
+    return_content: true
+  register: http_result
+  failed_when: http_result.status != 200
+  when: not tls_enabled
+  tags: [test]
+
+- name: Test HTTPS endpoint
+  delegate_to: localhost
+  become: false
+  ansible.builtin.uri:
+    url: "https://{{ hostvars[hostname]['ansible_host'] }}/index.html"
+    validate_certs: false
+    return_content: true
+  register: https_result
+  failed_when: https_result.status != 200
+  when: tls_enabled
+  tags: [test]
+
+- name: Debug response content (for inspection)
+  ansible.builtin.debug:
+    var: https_result.content
+  when: tls_enabled
