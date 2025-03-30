@@ -1,38 +1,63 @@
-# If you prefer the allow list template instead of the deny list, see community template:
-# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
-#
-# Binaries for programs and plugins
+# Binary and build artifacts
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
-
-# Test binary, built with `go test -c`
 *.test
-
-# Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+*.retry
+*.cache
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
-
-# Go workspace file
-go.work
-hosts
-
-# Ignore certs and keys
-*.crt
-*.key
-files/nginx.crt
-files/nginx.key
-
+# macOS junk
 .DS_Store
+
+# Vagrant files
 .vagrant/
 vagrant_ansible_inventory_default
-*.cache
-*.retry
-test.sh
 
+# Vault password files (never commit!)
+.vault_pass.txt
+vault_pass.txt
+
+# Sensitive inventory/host files
+hosts
+inventory/
+group_vars/
+host_vars/
+
+# TLS/SSL Certificates and Keys
+*.crt
+*.key
+*.pem
+*.csr
+*.pfx
+*.der
+*.jks
+*.p12
+
+# Common TLS locations
+files/*.crt
+files/*.key
+files/**/*.crt
+files/**/*.key
+
+# Example: certs/keys used in local testing
 lab3/files/nginx.crt.local
 lab3/files/nginx.key.local
+
+# Script files
+test.sh
+
+# VS Code settings (optional)
+.vscode/
+
+# Temporary YAML files (e.g., decrypted vault output)
+tmp/
+tmp.yml
+/tmp/*
+/tmp/*.yml
+
+# Catch accidental sensitive vars
+**/vars/*secret*
+**/vars/*vault*
