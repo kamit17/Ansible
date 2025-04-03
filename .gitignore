@@ -19,7 +19,7 @@ vagrant_ansible_inventory_default
 # Vault password files (never commit!)
 .vault_pass.txt
 vault_pass.txt
-
+*.pass
 # Sensitive inventory/host files
 hosts
 inventory/
