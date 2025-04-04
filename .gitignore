@@ -26,6 +26,8 @@ inventory/
 group_vars/
 host_vars/
 
+inventory.ini
+
 # TLS/SSL Certificates and Keys
 *.crt
 *.key
