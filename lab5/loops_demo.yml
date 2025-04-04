@@ -1,0 +1,12 @@
+---
+- name: loops demo 
+  hosts: web01
+  gather_facts: no
+  tasks:
+    - name: loop over all the softwares
+      debug:
+        msg: "{{ item }}"
+      loop:
+        - wget
+        - telnet
+        - netstat

@@ -1,0 +1,10 @@
+- name: Vault Load Test
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Load vault file
+      ansible.builtin.include_vars: nginx/vars/vault.yml
+
+    - name: Debug cert file
+      ansible.builtin.debug:
+        msg: "{{ cert_file }}"
