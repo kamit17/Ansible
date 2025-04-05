@@ -25,7 +25,7 @@ hosts
 inventory/
 group_vars/
 host_vars/
-
+.ansible
 inventory.ini
 
 # TLS/SSL Certificates and Keys
