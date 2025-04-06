@@ -1,0 +1,13 @@
+---
+# tasks file for nodejs
+- name: Install Node.js (npm plus all its dependencies)
+  ansible.builtin.dnf:
+    name: npm
+    state: present
+    enablerepo: epel
+
+- name: Install forever module
+  community.general.npm:
+    name: forever
+    global: true
+    state: present
