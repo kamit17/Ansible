@@ -27,6 +27,7 @@ group_vars/
 host_vars/
 .ansible
 inventory.ini
+ansible.cfg
 
 # TLS/SSL Certificates and Keys
 *.crt
