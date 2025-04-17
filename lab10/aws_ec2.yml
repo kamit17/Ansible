@@ -1,0 +1,35 @@
+#plugin: aws_ec2
+#regions:
+#  - us-east-2
+#filters:
+#  tag:Role webserver
+#  #instance-state-name: running
+#hostnames:
+#  - private-ip-address
+#keyed_groups:
+#  - key: tags.Role
+#    prefix: tag
+
+
+#plugin: aws_ec2
+#regions:
+#  - us-east-2
+#filters:
+#  tag:Role: webserver
+#hostnames:
+#  - public-ip-address
+#keyed_groups:
+#  - key: tags.Role
+ #   prefix: tag
+
+
+plugin: aws_ec2
+regions:
+  - us-east-2
+hostnames:
+  - ip-address   # 👈 Use this instead of private-ip-address
+filters:
+  instance-state-name: running
+keyed_groups:
+  - key: tags.Name
+    prefix: tag

@@ -1,0 +1,10 @@
+---
+- name: Install git on EC2 instances
+  hosts: all
+  become: yes
+  tasks:
+    - name: Ensure git is installed
+      ansible.builtin.apt:
+        name: git
+        state: present
+      when: ansible_os_family == "Debian"
