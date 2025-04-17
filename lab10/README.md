@@ -1,5 +1,3 @@
----
-
 ```markdown
 # Ansible AWS EC2 Dynamic Inventory Setup
 
