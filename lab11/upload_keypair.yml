@@ -1,0 +1,11 @@
+---
+- hosts: localhost
+  vars_files: 
+    - vault_key.yml
+  tasks:
+    - name: Upload public key
+      ec2_key:
+        name: MINT_AWSKEY
+        region: us-east-2
+        key_material: "{{ ssh_public_key }}"
+        state: present
