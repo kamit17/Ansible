@@ -1,0 +1,23 @@
+---
+- name: Terminate EC2 instance
+  hosts: localhost
+  connection: local
+  vars_files:
+    - ../vars/aws_secrets.yml
+
+  tasks:
+    - name: Find EC2 instance by tag
+      ec2_instance_info:
+        region: "{{ aws_region }}"
+        filters:
+          "tag:Name": "MyAnsibleInstance"
+      register: instance_info
+
+
+    - name: Terminate instance_info
+      ec2_instance: 
+        region: "{{ aws_region }}"
+        instance_ids: "{{instance_info.instances | map(attribute='instance_id') | list }}"
+        state: absent
+
+

@@ -1,0 +1,26 @@
+- hosts: localhost
+  connection: local
+  vars_files:
+    - ../vars/aws_secrets.yml
+
+  tasks:
+    - name: Launch EC2 instance
+      ec2_instance:
+        name: "MyInstance"
+        region: "{{ aws_region }}"
+        key_name: "{{ key_name }}"
+        instance_type: t2.micro
+        image_id: "{{ ami_id }}"
+        wait: yes
+        count: 1
+        network:
+          assign_public_ip: yes
+        #vpc_subnet_id: "{{ subnet_id }}"
+        security_group: "{{ sg_name }}"
+        tags:
+          Name: "MyAnsibleInstance"
+      register: ec2_info
+
+    - name: Show public IP
+      debug:
+        msg: "Public IP: {{ ec2_info.instances[0].public_ip_address }}"
