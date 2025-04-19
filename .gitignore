@@ -65,3 +65,5 @@ tmp.yml
 **/vars/*secret*
 **/vars/*vault*
 vault_key.yml
+vault_key.yml
+aws_secrets.yml
