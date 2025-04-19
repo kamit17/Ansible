@@ -1,0 +1,5 @@
+aws_region: us-west-2
+key_name: AWSKey
+sg_name: ansible-sg
+ami_id: ami-0abcdef1234567890     # Replace with a valid AMI in your region
+subnet_id: subnet-0abc123456def    # Replace with your subnet ID
