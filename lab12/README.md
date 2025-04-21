@@ -1,3 +1,5 @@
+'''markdown
+
 Automate key pair creation, security group setup, EC2 launch and termination using ansible
 
 
@@ -12,3 +14,4 @@ ansible-playbook playbooks/terminate_instance.yml
 
 
 
+'''
