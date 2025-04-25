@@ -1,0 +1,49 @@
+---
+- hosts: all
+  become: true
+  vars:
+    created_username: devadmin
+
+  tasks:
+    - name: Install apttitude
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+
+    - name: setup passwordless sudo
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^%sudo'
+        line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+        validate: '/usr/sbin/visudo -cf %s'
+
+    - name: Create a new regular user with sudo priveleges
+      user:
+        name: "{{ created_username }}"
+        state: present
+        groups: sudo
+        append: true
+        create_home: true
+
+    - name: Disable password authentication for root
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin prohibit-password'   
+
+    - name: Update apt and install required system packages
+      apt:
+        pkg:
+          - curl
+          - vim
+          - git
+          - ufw
+        state: latest
+        update_cache: true
+
+
+
+

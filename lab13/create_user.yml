@@ -1,0 +1,18 @@
+---
+- name: Create user and group with password
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Create a group
+      group:
+        name: devops
+        state: present
+
+    - name: create a user
+      user:
+        name: devadmin
+        password: "{{ 't3mp' | password_hash('sha512') }}"
+        group: devops
+        shell: /bin/bash
+        state: present
