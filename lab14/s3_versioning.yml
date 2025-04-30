@@ -1,0 +1,33 @@
+---
+- name: Create and Enforce S3 Bucket Versioning
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    bucket_name: "my-unique-bucket-{{ lookup('pipe', 'date +%s') }}"
+
+  tasks:
+    - name: Create an S3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ bucket_name }}"
+        state: present
+
+    - name: List all S3 buckets in AWS account
+      amazon.aws.s3_bucket_info:
+      register: result
+
+    - debug:
+        var: result
+
+    - name: Enable versioning on the S3 buckets
+      amazon.aws.s3_bucket:
+        name: "{{ item.name }}"
+        versioning: yes
+      loop: "{{ result.buckets }}"
+
+    - name: Delete the created S3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ item.name }}"
+        state: absent
+      loop: "{{ result.buckets }}"
+      when: item.name is match('^my-.*')
