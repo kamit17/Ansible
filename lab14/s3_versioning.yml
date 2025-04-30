@@ -25,6 +25,7 @@
         versioning: yes
       loop: "{{ result.buckets }}"
 
+#Deleting the buckets as they are not needed anymore after the test
     - name: Delete the created S3 bucket
       amazon.aws.s3_bucket:
         name: "{{ item.name }}"
