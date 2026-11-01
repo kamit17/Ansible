@@ -1,0 +1,93 @@
+ "ec2_tag_Name": "AnsibleDevops",
+ "ec2_tag_Name": "Ansible",
+
+"ec2_private_ip_address": "172.31.17.205",
+"ec2_private_ip_address": "172.31.20.231",
+-----------------------------
+- hosts: “{{ variable_host | default(‘Ansible’)}}”
+  become: yes
+  tasks:
+    - name: Display Hello world message
+      debug:
+        msg: Hello, world!
+--------------------------
+ansible-playbook testplay.yml --extra-vars "variable_host=tag_Ansible_true:tag_User_ubuntu:&tag_Environment_stage"
+
+“{{ variable_host | default(‘web’)}}
+-----------------------------------------
+above approach to just having dynamic inventory failed to work, so will test the below approach of having dynamic & static inventory
+--------------------------------------------
+[tag_kubernetes_yes]
+
+[kubernetes:children]
+tag_kubernetes_yes
+
+[tag_kubernetes_master_yes]
+
+[kubernetes_master:children]
+tag_kubernetes_master_yes
+
+[tag_kubernetes_minion_yes]
+
+[kubernetes_minion:children]
+tag_kubernetes_minion_yes
+
+[kubernetes:vars]
+ansible_python_interpreter=/usr/bin/python3
+ansible_ssh_user=root
+ansible_ssh_pass=root
+ansible_become: true
+ansible_ssh_private_key_file: ~/.ssh/14Feb2019
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+-----------------------------------
+./ec2.py --list --refresh-cache
+
+
+include this playbook after instance creation
+# make sure we can ssh into the instances, otherwise no point proceeding with trying to configure them!
+  - name: Wait for SSH to start
+    wait_for:
+      host: "{{ ec2_instance.instances[0].public_ip }}"
+      port: 22
+      timeout: 300
+    delegate_to: localhost
+    when: inventory_hostname != "localhost"
+-----------------------------------------------------------
+to do list
+- spin instance with jusec2 playbook.
+- test ansible ping with tag_Name_Ansibe_test
+- run a playbook, if play fails with public key permission error, then copy ssh keys to target host & retry playbook.
+- start working on kubernetes playbooks with dynamic inventory using above steps
+----------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,46 @@
+---
+-
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Provision a set of instances
+      ec2:
+         key_name: 14Feb2019
+         group: default
+         instance_type: t2.medium
+         image: ami-0f3a4e867e0c713e4 
+         region: ap-south-1
+         wait: true
+         exact_count: 1
+         count_tag:
+            Name: kubernetes
+         instance_tags:
+                 Name: kubernetes-master
+      register: ec2
+      ignore_errors: true
+    
+    - name: Refresh inventory to ensure new instances exist in inventory	
+      meta: refresh_inventory
+    
+    - name: Provision a set of instances
+      ec2:
+         key_name: 14Feb2019
+         group: default
+         instance_type: t2.micro
+         image: ami-0f18d198eb9022e38 
+         region: ap-south-1
+         wait: true
+         exact_count: 1
+         count_tag:
+            Name: kubernetes
+         instance_tags:
+            Name: kubernetes-minion
+      register: ec2
+      ignore_errors: true
+   
+    - name: Refresh inventory to ensure new instances exist in inventory
+      meta: refresh_inventory
+...
+

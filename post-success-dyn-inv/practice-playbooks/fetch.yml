@@ -1,0 +1,7 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: fetch file from remote machine
+      fetch:
+        src: /etc/fetch-file
+        dest: /tmp/fetch-file

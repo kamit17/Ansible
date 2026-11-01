@@ -1,0 +1,9 @@
+
+create ami with ubuntu on sudoers - done
+test ping playbook with statis inventory - done
+test if testplaybook runs on target using dynamic inventory
+test kubernetes playbook using dynamic inv
+
+fatal: [172.31.23.85]: UNREACHABLE! => {"changed": false, "msg": "Failed to connect to the host via ssh: root@172.31.23.85: Permission denied (publickey,password).", "unreachable": true}
+fatal: [172.31.18.207]: UNREACHABLE! => {"changed": false, "msg": "Failed to connect to the host via ssh: root@172.31.18.207: Permission denied (publickey,password).", "unreachable": true}
+

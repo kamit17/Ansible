@@ -1,0 +1,18 @@
+- hosts: localhost
+  become: true
+
+  tasks:
+  - name: Run a shell command to initiate k8 playbooks
+    shell: ansible-playbook -l tag_Name_kubernetes_master,tag_Name_kubernetes_minion k8-playbooks/initial.yml
+
+  - name: Run a shell command to initiate k8 kube-dependencies playbooks
+    shell: ansible-playbook -l tag_Name_kubernetes_master k8-playbooks/kube-dependencies.yml
+  
+  - name: Repeat the kube-dependencies play for minion only as the previous play got an error for minion
+    shell: ansible-playbook -l tag_Name_kubernetes_minion k8-playbooks/kube-dependencies.yml
+  
+  - name: Run a shell command to initiate k8 master playbooks
+    shell: ansible-playbook k8-playbooks/master.yml
+
+  - name: Run a shell command to initiate k8 worker playbooks
+    shell: ansible-playbook k8-playbooks/worker.yml

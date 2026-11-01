@@ -1,0 +1,82 @@
+- download ec2.py & ini files from github to inventory directory
+- Ansible/Inventory$ vi ec2.ini
+cache_max_age = 0
+Ansible$ export EC2_INI_PATH=inventory/ec2.ini #set environment variables
+Ansible$ chmod u+x inventory/ec2.py
+Ansible$ inventory/ec2.py --list | more #check inventory file
+Ansible$ cat ansible.cfg
+[defaults]
+inventory = ./Inventory/ec2.py
+host_key_checking = False
+forks=<20>
+ansible_managed = Managed by Ansible - file:{file} - host:{host} - uid:{uid}
+Ansible$ ls -altrh ~/.ssh/ansible_aws.pem #verifying the saved pem file# refer 16:20 of video
+Ansible$ vim group_vars/tag_Name_Ansible
+---
+ansible_ssh_private_key_file: ~/.ssh/ansible_aws.pem
+ansible_user: ec2-user
+ansible_become: true
+...
+
+- change ec2.ini file to include private_ip_address instead of public_ip_dns for destination variable
+
+- add ubuntu in sudoers file:
+Edit sudoers file: sudo nano /etc/sudoers
+Find a line which contains includedir /etc/sudoers.d
+Below that line add: username ALL=(ALL) NOPASSWD: ALL 
+
+- ansible tag_Name_Ansible -m ping
+_______________________________________________________
+Follow the below play to solve k8 dynamic inventory issue
+-----------------------------------------------------
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Create the EC2 Instance
+      ec2:
+        region: us-east-1
+        group: sg-xxxxx # Replace your Security Group here
+        keypair: test-key # Replace Key here
+        instance_type: t2.mirco
+        image: ami-xxxxx # Replace AMI here
+        vpc_subnet_id: subnet-xxxxx # Replace Subnet here
+        assign_public_ip: yes
+        wait: yes
+        wait_timeout: 600
+        instance_tags:
+           Name: "My-EC2-Instance"
+      register: ec2
+
+    - name: Create SSH Group to login dynamically to EC2 Instance
+      add_host: 
+        hostname: "{{ item.public_ip }}"
+        groupname: ec2_server
+      with_items: ec2.instances
+
+    - name: Wait for SSH to come up
+      wait_for: 
+        host: "{{ item.public_ip }}" 
+        port: 22 
+        state: started
+      with_items: ec2.instances
+
+ - hosts: ec2_server
+   become: yes
+   # Use ec2_user if you are using CentOS/Amazon server
+   remote_user: ubuntu # for Ubuntu server
+   gather_facts: yes
+   roles:
+     - webserver
+
+________________________________________________________________________
+#limit running playbooks on ansible control machine with the below cmd:
+ansible-playbook --limit 'all:!bad_host' playbook.yml
+----------------------------------
+shell: ansible-playbook -l tag_Name_kubernetes_master,tag_Name_kubernetes_minion k8-playbooks/initial.yml
+shell: ansible-playbook -l tag_Name_kubernetes_master,tag_Name_kubernetes_minion k8-playbooks/kube-dependencies.yml
+shell: ansible-playbook -l tag_Name_kubernetes_minion k8-playbooks/kube-dependencies.yml
+shell: ansible-playbook k8-playbooks/master.yml
+shell: ansible-playbook k8-playbooks/worker.yml
+

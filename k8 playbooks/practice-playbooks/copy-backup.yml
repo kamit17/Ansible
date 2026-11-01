@@ -1,0 +1,11 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: copy static file to remote machine
+      copy:
+       src: myfiles/ntp-test.conf
+       dest: /etc/ntp-test.conf
+       owner: root
+       group: root
+       mode: 0644
+       backup: yes

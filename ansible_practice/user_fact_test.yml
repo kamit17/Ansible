@@ -1,0 +1,11 @@
+---
+- hosts: all
+  vars:
+    user: "{{ ansible_env.USER }}"
+
+  tasks:
+    - name: print facts
+      debug: 
+        msg: "ansible_env.USER: {{ ansible_env.USER }}"
+
+

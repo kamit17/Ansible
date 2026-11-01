@@ -1,0 +1,3 @@
+- include: ec2-playbooks/apache-ec2.yml
+- include: practice-playbooks/wait.yml  
+- include: run-play.yml 

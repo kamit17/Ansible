@@ -1,0 +1,40 @@
+kubemaster 172.31.22.54
+kubenode1  172.31.16.45
+kubenode2  172.31.17.242
+
+/etc/cloud/cloud.cfg #preserve_hostname: true
+change hostname to /etc/hostname
+add private ip in /etc/hosts
+--------------------------------------------------
+kubemaster 13.234.110.167
+kubenode1  13.233.195.241
+kubenode2  13.127.166.221
+--------------------------------------------------
+#to install docker on RHEL, do the below steps before installing docker:
+
+Add the below content into /etc/yum.repos.d/centos.repo
+
+[CentOS-extras]
+name=CentOS-7-Extras
+mirrorlist=http://mirrorlist.centos.org/?release=7&arch=$basearch&repo=extras&infra=$infra
+#baseurl=http://mirror.centos.org/centos/$releasever/extras/$basearch/
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+---------------------------------------
+#script for enabling multiple services:
+for i in docker kubelet
+> do
+> systemctl start $i; systemctl enable $i
+> done
+----------------------------------------
+update the below line in /etc/sysctl.conf
+net.bridge.bridge-nf-call-ip6tables =1
+net.bridge.bridge-nf-call-iptables =1
+----------------------------------------
+kubeadm init --apiserver-advertise-address 52.66.198.127 --pod-network-cidr=172.31.0.0/16
+---------------------------------------
+kubeadm join 172.31.22.54:6443 --token 4vd3jc.nw9a0w4ukrh0lt0c \ --discovery-token-ca-cert-hash sha256:6706b2df32fa80ea8ef8626fa34ec8c6cff66a82fbcfef90fcfad1c67d33b43d
+kubeadm join 52.66.198.127:6443 --token 4vd3jc.nw9a0w4ukrh0lt0c \ --discovery-token-ca-cert-hash sha256:6706b2df32fa80ea8ef8626fa34ec8c6cff66a82fbcfef90fcfad1c67d33b43d
+
+-----------------------------------------
+kubeadm join 172.31.22.54:6443 --token 6rukxe.ll2knd2ora8cl3x8     --discovery-token-ca-cert-hash sha256:6706b2df32fa80ea8ef8626fa34ec8c6cff66a82fbcfef90fcfad1c67d33b43d

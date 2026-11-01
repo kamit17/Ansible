@@ -1,0 +1,4 @@
+#!/bin/bash
+for ip in `cat /root/myplatform/list_of_servers`; do
+    ssh-copy-id -i ~/.ssh/14Feb2019.pem $ip
+done

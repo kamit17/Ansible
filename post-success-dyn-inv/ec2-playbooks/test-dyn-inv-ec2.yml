@@ -1,0 +1,37 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Create the EC2 Instance
+      ec2:
+        region: ap-south-1
+        group: default
+        key_name: 14Feb2019 
+        instance_type: t2.micro
+        image: ami-0f18d198eb9022e38
+        vpc_subnet_id: subnet-a388c0cb
+        assign_public_ip: yes
+        wait: yes
+        wait_timeout: 600
+        instance_tags:
+           Name: apache
+      register: ec2
+
+    - name: Refresh inventory to ensure new instances exist in inventory	
+      meta: refresh_inventory
+  
+
+     # - name: Create SSH Group to login dynamically to EC2 Instance
+      #add_host: 
+      #hostname: "{{ item.public_ip }}"
+      #groupname: ec2_web
+      #with_items: ec2.instances
+
+     #- name: Wait for SSH to come up
+     #  wait_for: 
+     # host: "{{ item.public_ip }}" 
+     # port: 22 
+     #    state: started
+     #   with_items: ec2.instances
+...

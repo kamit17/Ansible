@@ -1,0 +1,4 @@
+- include: ec2-playbooks/kubernetes-instances.yml
+- include: practice-playbooks/wait.yml
+- include: k8-commands.yml
+- include: k8-playbooks/nginx-play.yml  

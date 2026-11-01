@@ -1,0 +1,24 @@
+---
+- name: Add users to sudoers
+  hosts: all
+  become: yes
+  vars:
+    new_sudo_user: devadmin
+
+  tasks:
+    - name: Ensure sudoers.d directory exists
+      file:
+        path: /etc/sudoers.d
+        mode: 444
+        state: directory
+
+    - name: Add user to sudoers using a sudoers.d file
+      template:
+        src: add_user_to_sudoers.j2
+        dest: /etc/sudoers.d/{{ new_sudo_user }}
+      notify: Reload sudoers
+
+  handlers:
+    - name: Reload sudoers
+      command: visudo -c
+      ignore_errors: yes

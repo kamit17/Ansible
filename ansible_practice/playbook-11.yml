@@ -1,0 +1,19 @@
+---
+- hosts: all
+  become: yes 
+  vars:
+    page_title: My Landing page
+    page_description: This is my landing page description
+  tasks:
+    - name: Instal lNginx
+      apt:
+        name: nginx
+        state: latest
+
+
+    - name: Apply page template
+      template:
+        src: files/landing-page.html.j2
+        dest: /var/www/html/index.nginx-debian.html
+
+  

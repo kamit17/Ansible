@@ -1,0 +1,44 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    region: ap-south-1
+  tasks:
+    - name: EC2 Basic provisioning
+      ec2:
+        region: "{{ region }}"
+        key_name: 14Feb2019
+        instance_type: t2.micro
+        image: ami-0d773a3b7bb2bb1c1
+        wait: yes
+        group: default
+        instance_tags:
+            lab: test
+----------------------------------------
+ssh -i 14Feb2019.pem ubuntu@35.154.242.221
+ssh-add ~/.ssh/14Feb2019.pem
+ansible 
+eval 'ssh-agent -s'
+ssh-add -l #verify if pem file is added to ssh memory
+tag_lab_test
+ansible -i ec2.py -u ubuntu tag_lab_test -m ping
+
+Permission denied (publickey)
+
+openssl genrsa 2048 > my-private-key.pem
+openssl req -new -x509 -nodes -sha256 -days 365 -key my-private-key.pem -outform PEM -out my-certificate.pem
+aws iam upload-server-certificate --server-certificate-name MyCertificate --certificate-body file://my-certificate.pem --private-key file://my-private-key.pem
+aws iam list-server-certificates --server-certificate-name MyCertificate
+aws iam delete-server-certificate --server-certificate-name MyCertificate
+
+{
+    "ServerCertificateMetadata": {
+        "ServerCertificateId": "ASCAJEUIHF7EHXQWPKOKW",
+        "ServerCertificateName": "MyCertificate",
+        "Expiration": "2020-03-01T17:01:24Z",
+        "Path": "/",
+        "Arn": "arn:aws:iam::160670627263:server-certificate/MyCertificate",
+        "UploadDate": "2019-03-02T17:01:42Z"
+    }
+}

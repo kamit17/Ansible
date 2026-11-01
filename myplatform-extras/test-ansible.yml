@@ -1,0 +1,38 @@
+---
+-
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+
+- name: Provision a set of instances
+      ec2:
+         key_name: 14Feb2019
+         group: default
+         instance_type: t2.micro
+         image: ami-0d3e51d72921848f7
+         region: ap-south-1
+         wait: true
+         exact_count: 3
+         count_tag:
+            Name: Ansible
+         instance_tags:
+            Name: Ansible test
+      register: ec2
+      ignore_errors: true
+
+
+    - name: Add all instance public IPs to host group
+      add_host:
+        hostname: "{{ item.public_ip }}"
+        groups: ansiblehosts
+      with_items: "{{ ec2.instances }}"
+
+    - name: Show group
+      debug:
+        var: groups.ansiblehosts
+
+
+...
+

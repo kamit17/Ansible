@@ -1,0 +1,3 @@
+- include: ec2-playbooks/justec2.yml
+- include: practice-playbooks/wait.yml  
+- include: run-play.yml 

@@ -1,0 +1,41 @@
+---
+- name: setup Jenkins
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Ensure Jenkins repository is installed
+      yum_repository:
+        name: jenkins
+        state: present
+        description: Official Jenkins Yum repository
+        baseurl: https://pkg.jenkins.io/redhat
+        gpgkey: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+        gpgcheck: yes
+        enabled: yes
+
+    - name: Install Java
+      yum:
+        name: java-11-openjdk-devel
+        state: present
+
+    - name: Ensure Jenkins is installed
+      yum:
+        name: jenkins
+        update_cache: yes
+        state: present
+
+    - name: daemon-reload to pickup config changes
+      systemd:
+        daemon-reload: yes
+
+    - name: Enable and start the Jenkins Service
+      service:
+        name: jenkins
+        state: started
+    - name: Open Firewall Port
+      firewalld:
+         zone: public
+         port: 8085/tcp
+         state: enabled
+         immediate: true

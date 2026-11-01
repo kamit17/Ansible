@@ -1,0 +1,48 @@
+1.10.12-00
+ansible-playbook -i hosts kube-cluster/kube-dependencies.yml
+skipping: no hosts matched
+
+ansible-playbook -i hosts kube-cluster/master.yml
+
+https://raw.githubusercontent.com/coreos/flannel/master/version/version.go
+
+TASK [create .kube directory] ******************************************************************************************************************************************
+ [WARNING]: Module remote_tmp /home/ubuntu/.ansible/tmp did not exist and was created with a mode of 0700, this may cause issues when running as another user. To avoid
+this, create the remote_tmp dir with the correct permissions manually
+
+changed: [172.31.23.42]
+
+TASK [copy admin.conf to user's kube config] ***************************************************************************************************************************
+fatal: [172.31.23.42]: FAILED! => {"changed": false, "msg": "Source /etc/kubernetes/admin.conf not found"}
+        to retry, use: --limit @/etc/ansible/kube-cluster/master.retry
+____________________________________________________________________________
+TASK [create .kube directory] ***************************************************
+ok: [172.31.23.42]
+
+TASK [copy admin.conf to user's kube config] ************************************
+fatal: [172.31.23.42]: FAILED! => {"changed": false, "msg": "Source /etc/kubernetes/admin.conf not found"}
+----------------------------------
+12th april 2019
+------------------
+#error on master playbook as docker service not enabled
+systemctl enable docker.service
+
+PLAY [master] *******************************************************************
+
+TASK [Gathering Facts] **********************************************************
+ok: [172.31.29.100]
+
+TASK [initialize the cluster] ***************************************************
+ok: [172.31.29.100]
+
+TASK [create .kube directory] ***************************************************
+changed: [172.31.29.100]
+
+TASK [copy admin.conf to user's kube config] ************************************
+fatal: [172.31.29.100]: FAILED! => {"changed": false, "msg": "Source /etc/kubernetes/admin.conf not found"}
+-----------------------------
+/etc/sysctl.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+
+ami-0d3e51d72921848f7

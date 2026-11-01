@@ -1,0 +1,6 @@
+- hosts: localhost
+  become: true
+  
+  tasks:
+  - name: Run a shell command to initiate apache playbook
+    shell: ansible-playbook -l tag_Name_apache_test practice-playbooks/test-apache-dynamic-inv.yml

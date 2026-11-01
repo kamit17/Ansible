@@ -1,0 +1,29 @@
+- hosts: tag_Name_kubernetes_master
+  become: sudo
+  ignore_errors: yes
+
+  tasks:
+    - name: copy nginx-svc.yml to kubernetes-master
+      copy:
+        src: /myplatform/practice-playbooks/myfiles/nginx-demo-nodeport-svc.yaml
+        dest: /home/ubuntu/
+        owner: ubuntu
+        group: ubuntu
+        mode: 0644
+
+    - name: copy pod.yml to kubernetes-master
+      copy:
+        src: /myplatform/practice-playbooks/myfiles/pod.yaml
+        dest: /home/ubuntu/
+        owner: ubuntu
+        group: ubuntu
+        mode: 0644
+
+    - name: change directory to /home/ubuntu on Master
+      shell: cd /home/ubuntu
+
+    - name: Run command on master to create nginx pod
+      shell: kubectl run nginx-demo --image=nginx --port=80 --labels="name=nginx-demo"
+
+    - name: Run command on master to create nginx service nodeport
+      shell: kubectl create -f nginx-demo-nodeport-svc.yaml

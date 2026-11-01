@@ -1,0 +1,1 @@
+kubeadm join 172.31.25.138:6443 --token rwjray.gh69ubmrwu3b9w85     --discovery-token-ca-cert-hash sha256:346ff2ae8313a7fdf06e671bc2b00bcbafd7a5b274edc92e844a28d12fbc22a9 

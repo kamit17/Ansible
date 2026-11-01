@@ -1,0 +1,13 @@
+
+- hosts: all
+  become: yes
+  tasks:
+    - name: copy static file to remote machine
+      copy:
+        src: myfiles/fetch-file
+        dest: /etc/fetch-file
+        owner: root
+        group: root
+        mode: 0644
+
+            
